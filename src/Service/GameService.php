@@ -3,8 +3,6 @@
 namespace App\Service;
 
 use App\Entity\GameBuffer;
-use App\Entity\Sport;
-use App\Entity\League;
 use App\Entity\Team;
 use App\Entity\Game;
 use App\Repository\SportRepository;
@@ -12,13 +10,11 @@ use App\Repository\LeagueRepository;
 use App\Repository\TeamRepository;
 use App\Repository\GameRepository;
 use App\Repository\GameBufferRepository;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Translation\TranslatorInterface;
 
+/**
+ * Сервис для работы с сущностями игр
+ */
 class GameService
 {
     private $gameBufferRepository;
@@ -27,7 +23,6 @@ class GameService
     private $teamRepository;
     private $gameRepository;
     private $translator;
-
 
     public function __construct(
         GameBufferRepository $gameBufferRepository,
@@ -45,6 +40,11 @@ class GameService
         $this->translator = $translator;
     }
 
+    /**
+     * Сохранить сырую игру
+     * 
+     * @param array $games
+     */
     public function saveGameBuffer(array $games)
     {
         foreach ($games as $game) {
@@ -58,6 +58,13 @@ class GameService
         $this->gameBufferRepository->getEntityManager()->flush();
     }
     
+    /**
+     * Найти и присвоить реальную игру
+     * 
+     * @param GameBuffer $gameBuffer
+     * 
+     * @return type
+     */
     public function merge(GameBuffer $gameBuffer)
     {
         // на данном этапе подразумеваем, что таблицы спорт, лига и команды заполнены и в них есть исчерпывающая инфа для поиска и создания game
@@ -80,6 +87,17 @@ class GameService
         $gameBuffer->setGame($game);
     }
     
+    /**
+     * Создать новую реальную игру
+     * 
+     * @param Team $team1
+     * @param Team $team2
+     * @param type $language
+     * @param \App\Service\DateTime $matchDate
+     * @param type $source
+     * 
+     * @return Game
+     */
     private function createGame(Team $team1, Team $team2, $language, DateTime $matchDate, $source)
     {
         $game = new Game();
